@@ -2,6 +2,7 @@ const {StatusCodes} = require('http-status-codes');
 
 const { UserRepository } = require('../repositories');
 const AppError = require('../utils/errors/app.error');
+const { Auth } = require('../utils/common');
 
 const userRepository = new UserRepository();
 
@@ -21,55 +22,28 @@ async function signup(data) {
     }
 }
 
-// async function getCities() {
-//     try {
-//         const cities = await cityRepository.getAll();
-//         return cities;
-//     } catch(error) {
-//         throw new AppError('Cannot fetch data of all the cities', StatusCodes.INTERNAL_SERVER_ERROR);
-//     }
-// }
+async function signin(data) {
+    try {
+        const user = await userRepository.getUserByEmail(data.email);
+        if(!user) {
+            throw new AppError('No user found for the given email', StatusCodes.NOT_FOUND);
+        }
+        const passwordMatch = Auth.checkPassword(data.password, user.password);
+        console.log("password match", passwordMatch)
+        if(!passwordMatch) {
+            throw new AppError('Invalid password', StatusCodes.BAD_REQUEST);
+        }
+        const jwt = Auth.createToken({id: user.id, email: user.email});
+        return jwt;
+    } catch(error) {
+        if(error instanceof AppError) throw error;
+        console.log(error);
+        throw new AppError('Something went wrong', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
 
-// async function getCity(id) {
-//     try {
-//         const city = await cityRepository.get(id);
-//         return city;
-//     } catch(error) {
-//         if(error.statusCode == StatusCodes.NOT_FOUND) {
-//             throw new AppError('The city you requested is not present', error.statusCode);
-//         }
-//         throw new AppError('Cannot fetch data of all the cities', StatusCodes.INTERNAL_SERVER_ERROR);
-//     }
-// }
-
-// async function destroyCity(id) {
-//     try {
-//         const response = await cityRepository.destroy(id);
-//         return response;
-//     } catch(error) {
-//         if(error.statusCode == StatusCodes.NOT_FOUND) {
-//             throw new AppError('The city you requested to delete is not present', error.statusCode);
-//         }
-//         throw new AppError('Cannot fetch data of all the cities', StatusCodes.INTERNAL_SERVER_ERROR);
-//     }
-// }
-
-// async function updateCity(id, data){
-//     try {
-//         const city = await cityRepository.update(id, data);
-//         return city;
-//     } catch(error) {
-//         if(error.statusCode == StatusCodes.NOT_FOUND) {
-//             throw new AppError("The city you requested to update is not present", error.statusCode);
-//         }
-//         throw new AppError("Cannot fetch data of the required cities", StatusCodes.NOT_FOUND);
-//     }
-// }
 
 module.exports = {
     signup,
-    // getCities,
-    // getCity,
-    // destroyCity,
-    // updateCity
+    signin
 }
