@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { UserController } = require('../../controllers');
-const { AirplaneMiddleware, AuthRequestMiddlewares } = require('../../middlewares');
+const { AuthRequestMiddlewares } = require('../../middlewares');
 
 const userRouter = express.Router();
 
@@ -10,5 +10,7 @@ userRouter.post('/signup', AuthRequestMiddlewares.validateAuthRequest, UserContr
 
 // /api/v1/user/signin POST
 userRouter.post('/signin', AuthRequestMiddlewares.validateAuthRequest, UserController.signin);
+
+userRouter.post('/role', AuthRequestMiddlewares.checkAuth, AuthRequestMiddlewares.isAdmin, UserController.addRoleToUser);
 
 module.exports = userRouter;
