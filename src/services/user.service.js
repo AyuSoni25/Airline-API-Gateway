@@ -51,7 +51,7 @@ async function isAuthenticated(token) {
             throw new AppError('Missing JWT token', StatusCodes.BAD_REQUEST);
         }
         const response = Auth.verifyToken(token);
-        const user = await userRepo.get(response.id);
+        const user = await userRepository.get(response.id);
         if(!user) {
             throw new AppError('No user found', StatusCodes.NOT_FOUND);
         }
@@ -71,11 +71,11 @@ async function isAuthenticated(token) {
 
 async function addRoletoUser(data) {
     try {
-        const user = await userRepo.get(data.id);
+        const user = await userRepository.get(data.id);
         if(!user) {
             throw new AppError('No user found for the given id', StatusCodes.NOT_FOUND);
         }
-        const role = await roleRepo.getRoleByName(data.role);
+        const role = await roleRepository.getRoleByName(data.role);
         if(!role) {
             throw new AppError('No user found for the given role', StatusCodes.NOT_FOUND);
         }
@@ -90,11 +90,11 @@ async function addRoletoUser(data) {
 
 async function isAdmin(id) {
     try {
-        const user = await userRepo.get(id);
+        const user = await userRepository.get(id);
         if(!user) {
             throw new AppError('No user found for the given id', StatusCodes.NOT_FOUND);
         }
-        const adminrole = await roleRepo.getRoleByName(Enums.USER_ROLES_ENUM.ADMIN);
+        const adminrole = await roleRepository.getRoleByName(Enums.USER_ROLES_ENUM.ADMIN);
         if(!adminrole) {
             throw new AppError('No user found for the given role', StatusCodes.NOT_FOUND);
         }
